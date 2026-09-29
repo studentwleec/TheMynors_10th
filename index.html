@@ -3,244 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dionell vs Juan Manuel - Baloncesto Pro 2P Local</title>
+<title>Dionell vs Juan Manuel - Baloncesto Pro Realista 2P</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0f1e;color:#fff;font-family:'Segoe UI',Arial,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px}
-h1{font-size:clamp(18px,3vw,28px);letter-spacing:1px;margin-bottom:6px;text-align:center}
+body{background:radial-gradient(circle at 50% 0%,#1e293b,#020617);color:#fff;font-family:'Segoe UI',Arial,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px}
+h1{font-size:clamp(18px,3vw,28px);margin-bottom:6px;text-align:center;letter-spacing:1px}
 h1 span.d{color:#ffb347}h1 span.j{color:#7dd3fc}
-#wrap{position:relative;width:min(960px,100%)}
-canvas{width:100%;height:auto;background:#e8a34c;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.6);display:block}
-#hud{display:flex;justify-content:space-between;width:min(960px,100%);margin:8px 0;gap:8px;flex-wrap:wrap}
-.card{background:#141d33;border:1px solid #2a3a5f;border-radius:10px;padding:8px 14px;flex:1;min-width:200px;text-align:center}
-.card b{font-size:18px}.score{font-size:32px;font-weight:800}
-#timer{font-size:32px;font-weight:800;color:#fde047}
-.controls{width:min(960px,100%);display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.controls div{flex:1;min-width:260px;background:#141d33;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.6;border:1px solid #2a3a5f}
-kbd{background:#0a0f1e;border:1px solid #555;border-bottom-width:3px;border-radius:6px;padding:1px 7px;font-family:inherit;font-weight:bold}
+#wrap{position:relative;width:min(1024px,100%)}
+canvas{width:100%;height:auto;border-radius:14px;box-shadow:0 15px 60px rgba(0,0,0,.7);display:block}
+#hud{display:flex;justify-content:space-between;width:min(1024px,100%);margin:8px 0;gap:8px;flex-wrap:wrap}
+.card{background:linear-gradient(180deg,#1e293b,#0f172a);border:1px solid #334155;border-radius:12px;padding:8px 14px;flex:1;min-width:200px;text-align:center}
+.score{font-size:34px;font-weight:900}
+#timer{font-size:34px;font-weight:900;color:#fde047}
+.controls{width:min(1024px,100%);display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.controls div{flex:1;min-width:280px;background:#0f172a;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.7;border:1px solid #334155}
+kbd{background:#020617;border:1px solid #64748b;border-bottom-width:3px;border-radius:6px;padding:1px 7px;font-weight:bold}
 button{margin-top:10px;background:#f59e0b;color:#111;font-weight:800;border:none;border-radius:10px;padding:12px 28px;font-size:16px;cursor:pointer}
-button:hover{background:#fbbf24}
-#msg{text-align:center;margin-top:6px;min-height:22px;color:#fde047;font-weight:bold}
+#msg{text-align:center;margin-top:6px;min-height:24px;color:#fde047;font-weight:bold;font-size:17px}
+small{color:#94a3b8}
 </style>
 </head>
 <body>
-<h1>🏀 <span class="d">DIONELL</span> vs <span class="j">JUAN MANUEL</span> · BALONCESTO PRO 2P LOCAL</h1>
+<h1>🏀 <span class="d">DIONELL</span> vs <span class="j">JUAN MANUEL</span> · PRO REALISTA 2P</h1>
 <div id="hud">
-<div class="card" style="border-left:6px solid #ffb347"><div>🧑🏾‍🦱 <b>DIONELL</b> — rizado · delgado · tez morena<br><small>Rápido · gran tiro de 3</small></div><div class="score" id="s1">0</div></div>
-<div class="card"><div>⏱️ TIEMPO</div><div id="timer">120</div><div id="periodo" style="font-size:12px;color:#94a3b8">1er TIEMPO · primer a más puntos gana</div></div>
-<div class="card" style="border-right:6px solid #7dd3fc"><div><b>JUAN MANUEL</b> 🧍🏻 — bajito · tez blanca · muy alto<br><small>Tapones y mates imparables</small></div><div class="score" id="s2">0</div></div>
+<div class="card" style="border-left:6px solid #ffb347"><div>🧑🏾‍🦱 <b>DIONELL</b> · rizado moreno delgado<br><small>Rápido · preciso de lejos</small></div><div class="score" id="s1">0</div></div>
+<div class="card"><div>⏱️ TIEMPO</div><div id="timer">120</div><small>Mantén tiro para cargar · suelta para lanzar</small></div>
+<div class="card" style="border-right:6px solid #7dd3fc"><div><b>JUAN MANUEL</b> 🧍🏻 · bajito blanco muy alto<br><small>Fuerte cerca del aro</small></div><div class="score" id="s2">0</div></div>
 </div>
-<div id="wrap"><canvas id="game" width="960" height="540"></canvas></div>
+<div id="wrap"><canvas id="game" width="1024" height="580"></canvas></div>
 <div id="msg"></div>
 <div class="controls">
-<div>🔵 <b>DIONELL (Jugador 1, izquierda):</b><br><kbd>A</kbd><kbd>D</kbd> moverse · <kbd>W</kbd> saltar · <kbd>F</kbd> lanzar / robar<br><kbd>S</kbd> finta / bajar brazos</div>
-<div>🔴 <b>JUAN MANUEL (Jugador 2, derecha):</b><br><kbd>◀</kbd><kbd>▶</kbd> moverse · <kbd>▲</kbd> saltar · <kbd>Enter</kbd> lanzar / robar<br><kbd>▼</kbd> finta</div>
+<div>🔵 <b>DIONELL P1:</b> <kbd>A</kbd><kbd>D</kbd> correr · <kbd>W</kbd> saltar · <b>MANTÉN <kbd>F</kbd></b> cargar fuerza, <b>SUELTA</b> lanzar · <kbd>F</kbd> sin balón = robar · <kbd>S</kbd> finta</div>
+<div>🔴 <b>JUAN MANUEL P2:</b> <kbd>◀</kbd><kbd>▶</kbd> correr · <kbd>▲</kbd> saltar · <b>MANTÉN <kbd>Enter</kbd></b> cargar, <b>SUELTA</b> lanzar · sin balón = robar</div>
 </div>
 <button onclick="reiniciar()">↻ REINICIAR PARTIDO</button>
 <script>
 const cv=document.getElementById('game'),ctx=cv.getContext('2d');
-const W=960,H=540,FLOOR=H-60;
-let score1=0,score2=0,timeLeft=120,playing=true,gameOver=false,msgT=0;
+const W=1024,H=580,FLOOR=H-70;
+let score1=0,score2=0,timeLeft=120,playing=true,gameOver=false;
 const GRAV=0.6;
 function reiniciar(){score1=0;score2=0;timeLeft=120;gameOver=false;playing=true;
 document.getElementById('s1').textContent='0';document.getElementById('s2').textContent='0';
-resetPositions();showMsg('¡SALTO INICIAL! ¡A JUGAR!',200);}
-function showMsg(t,n=120){document.getElementById('msg').textContent=t;msgT=n;}
-function makePlayer(x,skin,shirt,name,tall,slim,curly,faceLeft){
-return {x,y:FLOOR,vx:0,vy:0,w:slim?32:44,h:tall?130:105,skin,shirt,name,tall,slim,curly,faceLeft,onGround:true,jumpPow:tall?-13.5:-15,speed:slim?4.6:3.8,hasBall:false,arm:0,block:0};}
-let p1=makePlayer(200,'#8D5524','#ff6b35','DIONELL',false,true,true,false);
-let p2=makePlayer(720,'#FFDBB4','#2563eb','JUAN MANUEL',true,false,false,true);
-let ball={x:480,y:200,vx:0,vy:0,r:14,holder:null,lastTouch:null};
-function resetPositions(){p1.x=200;p1.y=FLOOR;p1.vx=p1.vy=0;p2.x=720;p2.y=FLOOR;p2.vx=p2.vy=0;ball.x=480;ball.y=120;ball.vx=0;ball.vy=0;ball.holder=null;}
-const hoops=[{x:70,rimY:200,dir:1},{x:890,rimY:200,dir:-1}];
+resetPositions();showMsg('¡SALTO INICIAL! Mantén el tiro para medir fuerza 🎯');}
+function showMsg(t){document.getElementById('msg').textContent=t;clearTimeout(showMsg._t);showMsg._t=setTimeout(()=>{if(!gameOver)document.getElementById('msg').textContent=''},2500);}
+function makePlayer(x,skin,skinD,shirt,shorts,name,tall,slim,curly){
+return {x,y:FLOOR,vx:0,vy:0,w:slim?36:50,h:tall?142:112,skin,skinD,shirt,shorts,name,tall,slim,curly,faceLeft:false,onGround:true,
+jumpPow:tall?-14:-15.5,speed:slim?5.0:4.1,hasBall:false,arm:0,charge:0,charging:false,chargeDir:1,run:0};}
+let p1=makePlayer(220,'#8D5524','#6b3f1a','#ff6b35','#111','DIONELL',false,true,true);
+let p2=makePlayer(800,'#FFDBB4','#d9a877','#2563eb','#f8fafc','J.MANUEL',true,false,false);
+p1.faceLeft=false;p2.faceLeft=true;
+let ball={x:512,y:150,vx:0,vy:0,r:15,holder:null,lastTouch:null,spin:0};
+// CANASTA MÁS GRANDE: aro ancho 30 (antes 18)
+const hoops=[{x:84,rimY:225,dir:1,half:30},{x:940,rimY:225,dir:-1,half:30}];
 const keys={};
 addEventListener('keydown',e=>{
 if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
 keys[e.key.toLowerCase()]=true;keys[e.key]=true;
 if(gameOver&&(e.key===' '||e.key==='Enter'))reiniciar();});
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;keys[e.key]=false;});
-function tryShoot(p,hoop,foe){
-if(ball.holder!==p)return;
-// lanzar hacia el aro más cercano al frente
-const target= (p===p1)?hoops[1]:hoops[0];
-const dx=target.x-p.x, dy=target.rimY-(p.y-p.h-20);
+function resetPositions(){p1.x=220;p1.y=FLOOR;p1.vx=p1.vy=0;p1.charge=0;p1.charging=false;
+p2.x=800;p2.y=FLOOR;p2.vx=p2.vy=0;p2.charge=0;p2.charging=false;
+ball.x=512;ball.y=140;ball.vx=0;ball.vy=0;ball.holder=null;}
+// calcula velocidad inicial según fuerza 0-100
+function shootVelocity(p){
+const target=(p===p1)?hoops[1]:hoops[0];
+const dx=target.x-p.x;
 const dist=Math.abs(dx);
-const pow=Math.min(1,dist/500);
-ball.holder=null;p.hasBall=false;
-ball.vx=dx/45; ball.vy=-11 - pow*3 + dy/120;
-ball.vy=Math.max(-16,Math.min(-8,ball.vy));
-ball.lastTouch=p; p.arm=10; showMsg(p.name+' ¡LANZA!',40);
+const power=p.charge/100; // 0..1
+// ángulo base según distancia, fuerza ajusta potencia
+const baseV=9+dist/90; // más lejos = más fuerte base
+const v=baseV*(0.55+power*0.75);
+const t=dist/(v*0.72+3); // tiempo estimado
+const vx=dx/(t*1.05);
+let vy=((target.rimY-(p.y-p.h-20)) - 0.5*0.45*t*t)/t;
+vy=Math.max(-17.5,Math.min(-7,vy-(power-0.65)*4));
+return {vx,vy,power};
+}
+function releaseShoot(p){
+if(ball.holder!==p||!p.charging)return;
+const v=shootVelocity(p);
+ball.holder=null;p.hasBall=false;ball.vx=v.vx;ball.vy=v.vy;ball.lastTouch=p;ball.spin=v.vx*0.05;
+p.arm=12;p.charging=false;
+// feedback precisión
+let txt='';
+if(p.charge>62&&p.charge<88)txt=p.name+' ¡TIRO PERFECTO! 🟢 '+Math.round(p.charge)+'%';
+else if(p.charge<40)txt=p.name+' muy flojo '+Math.round(p.charge)+'%';
+else if(p.charge>92)txt=p.name+' ¡PASADO DE FUERZA! 🔴';
+else txt=p.name+' lanza '+Math.round(p.charge)+'%';
+showMsg(txt);
+p.charge=0;
 }
 function trySteal(p,foe){
 if(ball.holder===foe){
-if(Math.hypot(p.x-foe.x,(p.y-p.h/2)-(foe.y-foe.h/2))<70&&Math.random()<0.35){
-ball.holder=p;p.hasBall=true;foe.hasBall=false;ball.lastTouch=p;showMsg(p.name+' ¡ROBA!',60);}
+if(Math.hypot(p.x-foe.x,(p.y-p.h/2)-(foe.y-foe.h/2))<78&&Math.random()<0.30){
+ball.holder=p;p.hasBall=true;foe.hasBall=false;foe.charging=false;foe.charge=0;ball.lastTouch=p;showMsg(p.name+' ¡ROBO! 🖐️');}
 }else if(ball.holder===null){
-if(Math.hypot(ball.x-p.x,ball.y-(p.y-p.h/2))<60){ball.holder=p;p.hasBall=true;ball.lastTouch=p;}
-}else if(ball.holder===p){/* nada */}
-else{ // tapón
-p.block=10;}
+if(Math.hypot(ball.x-p.x,ball.y-(p.y-p.h/2))<62){ball.holder=p;p.hasBall=true;ball.lastTouch=p;}
+}
 }
 function update(){
 if(!playing||gameOver)return;
 timeLeft-=1/60;
-if(timeLeft<=0){timeLeft=0;gameOver=true;showMsg('⏱️ FIN DEL PARTIDO',9999);}
+if(timeLeft<=0){timeLeft=0;gameOver=true;}
 document.getElementById('timer').textContent=Math.ceil(timeLeft);
-// P1
+// movimiento P1
 let m1=0;if(keys['a'])m1-=1;if(keys['d'])m1+=1;
-p1.vx=m1*p1.speed; p1.faceLeft=m1<0?true:(m1>0?false:p1.faceLeft);
+p1.vx=m1*p1.speed;if(m1!==0)p1.faceLeft=m1<0;
 if(keys['w']&&p1.onGround){p1.vy=p1.jumpPow;p1.onGround=false;}
-// P2
 let m2=0;if(keys['arrowleft'])m2-=1;if(keys['arrowright'])m2+=1;
-p2.vx=m2*p2.speed; p2.faceLeft=m2<0?true:(m2>0?false:p2.faceLeft);
+p2.vx=m2*p2.speed;if(m2!==0)p2.faceLeft=m2<0;
 if(keys['arrowup']&&p2.onGround){p2.vy=p2.jumpPow;p2.onGround=false;}
-for(const p of [p1,p2]){
-p.vy+=GRAV;p.x+=p.vx;p.y+=p.vy;
-if(p.x<30)p.x=30;if(p.x>W-30)p.x=W-30;
+for(const p of [p1,p2]){p.vy+=GRAV;p.x+=p.vx;p.y+=p.vy;p.run+=Math.abs(p.vx)*0.06;
+if(p.x<40)p.x=40;if(p.x>W-40)p.x=W-40;
 if(p.y>=FLOOR){p.y=FLOOR;p.vy=0;p.onGround=true;}
-if(p.arm>0)p.arm--;if(p.block>0)p.block--;}
-// disparos (flanco)
-if(!p1._f&&keys['f']){tryShoot(p1);trySteal(p1,p2);}p1._f=!!keys['f'];
-if(!p2._e&&(keys['enter'])){tryShoot(p2);trySteal(p2,p1);}p2._e=!!keys['enter'];
+if(p.arm>0)p.arm--;}
+// CARGA DE FUERZA P1 (F)
+const fDown=!!keys['f'];
+if(ball.holder===p1&&fDown){p1.charging=true;p1.charge+=1.6*p1.chargeDir;if(p1.charge>=100){p1.charge=100;p1.chargeDir=-1;}if(p1.charge<=0){p1.charge=0;p1.chargeDir=1;}}
+else if(p1.charging&&!fDown){releaseShoot(p1);}
+else if(ball.holder!==p1){p1.charging=false;p1.charge=0;if(fDown&&!p1._f)trySteal(p1,p2);}
+p1._f=fDown;
+// CARGA P2 (Enter)
+const eDown=!!keys['enter'];
+if(ball.holder===p2&&eDown){p2.charging=true;p2.charge+=1.6*p2.chargeDir;if(p2.charge>=100){p2.charge=100;p2.chargeDir=-1;}if(p2.charge<=0){p2.charge=0;p2.chargeDir=1;}}
+else if(p2.charging&&!eDown){releaseShoot(p2);}
+else if(ball.holder!==p2){p2.charging=false;p2.charge=0;if(eDown&&!p2._e)trySteal(p2,p1);}
+p2._e=eDown;
 // balón
-if(ball.holder){
-const p=ball.holder;
-ball.x=p.x+(p.faceLeft?-26:26);ball.y=p.y-p.h-6+Math.sin(Date.now()/150)*3;
-ball.vx=ball.vy=0;
-}else{
-ball.vy+=0.45;ball.x+=ball.vx;ball.y+=ball.vy;
-ball.vx*=0.995;
-// suelo
-if(ball.y+ball.r>FLOOR+18){ball.y=FLOOR+18-ball.r;ball.vy*=-0.62;ball.vx*=0.9;if(Math.abs(ball.vy)<1)ball.vy=0;}
-// paredes y tableros
+if(ball.holder){const p=ball.holder;ball.x=p.x+(p.faceLeft?-30:30);ball.y=p.y-p.h-4+Math.sin(Date.now()/150)*2;ball.vx=ball.vy=0;}
+else{
+ball.vy+=0.45;ball.x+=ball.vx;ball.y+=ball.vy;ball.spin+=ball.vx*0.01;ball.vx*=0.996;
+if(ball.y+ball.r>FLOOR+22){ball.y=FLOOR+22-ball.r;ball.vy*=-0.62;ball.vx*=0.9;if(Math.abs(ball.vy)<1)ball.vy=0;}
+if(ball.x<10||ball.x>W-10)ball.vx*=-0.7;
 for(const h of hoops){
-// tablero
-const bx=h.x+(h.dir<0?12:-12);
-if(Math.abs(ball.x-bx)<8&&ball.y>h.rimY-60&&ball.y<h.rimY+10){ball.vx*=-0.7;ball.x+= (ball.x>bx?4:-4);}
-// aro (dos puntos)
-for(const rx of [h.x-16,h.x+16]){
-const ry=h.rimY;
-const dx=ball.x-rx,dy=ball.y-ry,d=Math.hypot(dx,dy);
-if(d<ball.r+5&&d>0){const nx=dx/d,ny=dy/d;ball.x=rx+nx*(ball.r+5);ball.y=ry+ny*(ball.r+5);
-const dot=ball.vx*nx+ball.vy*ny;ball.vx-=1.7*dot*nx;ball.vy-=1.7*dot*ny;ball.vx*=0.92;ball.vy*=0.92;}
+const bx=h.x+(h.dir<0?16:-16);
+if(Math.abs(ball.x-bx)<9&&ball.y>h.rimY-75&&ball.y<h.rimY+12){ball.vx*=-0.72;ball.x+=ball.x>bx?4:-4;}
+for(const rx of [h.x-h.half,h.x+h.half]){
+const dx=ball.x-rx,dy=ball.y-h.rimY,d=Math.hypot(dx,dy);
+if(d<ball.r+5&&d>0.1){const nx=dx/d,ny=dy/d;ball.x=rx+nx*(ball.r+5);ball.y=h.rimY+ny*(ball.r+5);
+const dot=ball.vx*nx+ball.vy*ny;ball.vx-=1.75*dot*nx;ball.vy-=1.75*dot*ny;ball.vx*=0.93;ball.vy*=0.93;}
 }
-// canasta: pasa hacia abajo entre los puntos
-if(Math.abs(ball.x-h.x)<13&&Math.abs(ball.y-h.rimY)<6&&ball.vy>0){
-encesta(h);
+if(Math.abs(ball.x-h.x)<h.half-4&&Math.abs(ball.y-h.rimY)<7&&ball.vy>0)encesta(h);
 }
+for(const p of [p1,p2]){if(!ball.holder&&ball.y>p.y-p.h-34&&ball.y<p.y+12&&Math.abs(ball.x-p.x)<36&&Math.abs(ball.vy)<13){ball.holder=p;p.hasBall=true;ball.lastTouch=p;break;}}
 }
-// recoger
-for(const p of [p1,p2]){
-if(ball.holder===null&&ball.y>p.y-p.h-30&&ball.y<p.y+10&&Math.abs(ball.x-p.x)<32&&Math.abs(ball.vy)<12){
-ball.holder=p;p.hasBall=true;ball.lastTouch=p;break;}
-}
-// jugadores empujan balón suelto
-}
-if(msgT>0){msgT--;if(msgT===0&&!gameOver)document.getElementById('msg').textContent='';}
 }
 function encesta(h){
-const esIzq=(h===hoops[0]);
-const anotador= esIzq? p2 : p1; // encestar en aro izq = punto para p2 (ataca izq?) -> simplificamos: aro derecho es de p1
-// Definimos: p1 ataca derecha, p2 ataca izquierda
-let puntos=2;
-const distLanz=Math.abs(ball.x-(anotador.x));
-if(ball.lastTouch===anotador){
-if(esIzq&&anotador===p2||!esIzq&&anotador===p1){
-score1+= !esIzq?2:0; score2+= esIzq?2:0;
-if(!esIzq){score1+=0;showMsg('¡CANASTA DE DIONELL +2!',120);}else{showMsg('¡CANASTA DE JUAN MANUEL +2!',120);}
-document.getElementById('s1').textContent=score1;
-document.getElementById('s2').textContent=score2;
-}else{
-// canasta en propia -> punto rival
+const izq=(h===hoops[0]);
+if(izq){score2+=2;document.getElementById('s2').textContent=score2;showMsg('¡CANASTA DE JUAN MANUEL +2! 🏀');}
+else{score1+=2;document.getElementById('s1').textContent=score1;showMsg('¡CANASTA DE DIONELL +2! 🏀');}
+ball.x=h.x;ball.y=h.rimY+24;ball.vx=(izq?2.5:-2.5);ball.vy=2;ball.lastTouch=null;
 }
+// ===== DIBUJO REALISTA =====
+function drawCourt(){
+let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0b1226');g.addColorStop(0.22,'#0b1226');g.addColorStop(0.23,'#c98a3f');g.addColorStop(1,'#8f5a22');
+ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+// público
+ctx.fillStyle='#0b1226';ctx.fillRect(0,0,W,110);
+for(let i=0;i<70;i++){const x=(i*47)%W,y=15+(i*31)%80;
+ctx.fillStyle=`hsl(${(i*37)%360} 45% ${25+(i%4)*6}%)`;ctx.beginPath();ctx.arc(x,y,9,0,7);ctx.fill();
+ctx.fillStyle='#000';ctx.fillRect(x-9,y+9,18,10);}
+// vetas madera
+ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=2;
+for(let y=130;y<H;y+=22){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+for(let i=0;i<14;i++){ctx.strokeStyle='rgba(0,0,0,.05)';ctx.beginPath();const x=i*80+20;ctx.moveTo(x,110);ctx.lineTo(x-20,H);ctx.stroke();}
+// líneas pro
+ctx.strokeStyle='#f8fafc';ctx.lineWidth=5;
+ctx.strokeRect(24,120,W-48,H-120-58);
+ctx.beginPath();ctx.moveTo(W/2,120);ctx.lineTo(W/2,H-58);ctx.stroke();
+ctx.beginPath();ctx.arc(W/2,(H+60)/2,68,0,7);ctx.stroke();
+ctx.fillStyle='rgba(37,99,235,.22)';ctx.fillRect(24,120,150,H-178);ctx.fillRect(W-174,120,150,H-178);
+ctx.strokeStyle='#fde047';ctx.lineWidth=3;
+ctx.beginPath();ctx.arc(W/2,(H+60)/2,68,0,7);ctx.stroke();
+// sombra cancha
+ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(0,H-58,W,58);
 }
-ball.x=h.x;ball.y=h.rimY+20;ball.vx=(esIzq?2:-2);ball.vy=2;ball.lastTouch=null;
+function drawHoop(h){
+const bx=h.x+(h.dir<0?16:-16);
+// poste
+ctx.fillStyle='#334155';ctx.fillRect(h.x-70+(h.dir>0?0:140),60,14,h.rimY-60);
+ctx.fillStyle='#f8fafc';ctx.fillRect(h.x-70+(h.dir>0?0:140),60,14,10);
+// tablero cristal
+ctx.fillStyle='rgba(200,230,255,.75)';ctx.fillRect(bx-5,h.rimY-85,10,85);
+ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.strokeRect(bx-5,h.rimY-85,10,85);
+ctx.strokeStyle='#ef4444';ctx.lineWidth=2;ctx.strokeRect(bx-5,h.rimY-45,10,30);
+// aro GRANDE
+ctx.strokeStyle='#dc2626';ctx.lineWidth=6;ctx.beginPath();
+ctx.moveTo(h.x-h.half,h.rimY);ctx.lineTo(h.x+h.half,h.rimY);ctx.stroke();
+ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2;ctx.beginPath();
+ctx.moveTo(h.x-h.half+3,h.rimY);ctx.lineTo(h.x-h.half-3,h.rimY+30);
+ctx.moveTo(h.x+h.half-3,h.rimY);ctx.lineTo(h.x+h.half+3,h.rimY+30);
+ctx.moveTo(h.x-10,h.rimY);ctx.lineTo(h.x-8,h.rimY+30);ctx.moveTo(h.x+10,h.rimY);ctx.lineTo(h.x+8,h.rimY+30);ctx.stroke();
 }
 function drawPlayer(p){
-const x=p.x,y=p.y;
-ctx.save();
-// sombra
-ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x,FLOOR+20,p.w*0.9,8,0,0,7);ctx.fill();
-// piernas
-ctx.fillStyle='#111';
-const run=Math.sin(Date.now()/100+p.x)* (Math.abs(p.vx)>0.5?6:0);
-ctx.fillRect(x-10,y-34+run*0.3,9,34);ctx.fillRect(x+2,y-34-run*0.3,9,34);
-// torso
-ctx.fillStyle=p.shirt;
-roundRect(x-p.w/2,y-p.h,p.w,p.h-34,10);ctx.fill();
-ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='bold 11px Arial';ctx.textAlign='center';
-ctx.fillText(p===p1?'3':'34',x,y-p.h/2-8);
-// brazos
-ctx.strokeStyle=p.skin;ctx.lineWidth=p.slim?8:11;ctx.lineCap='round';
-const reach=p.block>0?-50:(p.arm>0?-58:-20);
+const x=p.x,y=p.y;ctx.save();
+// sombra dinámica
+const hgt=(FLOOR-y)/300;ctx.fillStyle=`rgba(0,0,0,${0.35-hgt*0.2})`;
+ctx.beginPath();ctx.ellipse(x,FLOOR+26,p.w*(1-hgt*0.3),9,0,0,7);ctx.fill();
 const dir=p.faceLeft?-1:1;
-ctx.beginPath();ctx.moveTo(x,y-p.h+18);ctx.lineTo(x+dir*22,y-p.h+18-reach);ctx.stroke();
-// cabeza
-const hy=y-p.h-14;
-ctx.fillStyle=p.skin;ctx.beginPath();ctx.arc(x,hy,15,0,7);ctx.fill();
-// pelo
+const legSwing=Math.sin(p.run*6)* (Math.abs(p.vx)>0.5?10:2);
+const crouch=p.onGround?0:6;
+// piernas realistas
+ctx.lineCap='round';
+ctx.strokeStyle=p.skin;ctx.lineWidth=p.slim?11:15;
+ctx.beginPath();ctx.moveTo(x-6,y-52);ctx.lineTo(x-10+legSwing,y-4-crouch);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x+6,y-52);ctx.lineTo(x+10-legSwing,y-4-crouch);ctx.stroke();
+// zapatillas
+ctx.fillStyle=p===p1?'#f97316':'#38bdf8';
+ctx.beginPath();ctx.ellipse(x-10+legSwing,y-4,13,7,0,0,7);ctx.fill();
+ctx.beginPath();ctx.ellipse(x+10-legSwing,y-4,13,7,0,0,7);ctx.fill();
+// shorts
+ctx.fillStyle=p.shorts;ctx.fillRect(x-p.w/2-2,y-78,p.w+4,30);
+// torso musculoso
+let tg=ctx.createLinearGradient(x-p.w/2,0,x+p.w/2,0);tg.addColorStop(0,'rgba(0,0,0,.3)');tg.addColorStop(0.5,p.shirt);tg.addColorStop(1,'rgba(0,0,0,.3)');
+ctx.fillStyle=tg;roundRect(x-p.w/2,y-p.h,p.w,p.h-48,12);ctx.fill();
+ctx.fillStyle='#fff';ctx.font='900 16px Arial';ctx.textAlign='center';
+ctx.fillText(p===p1?'3':'34',x,y-p.h/2-18);
+// brazos
+const aiming=p.charging;
+ctx.strokeStyle=p.skin;ctx.lineWidth=p.slim?10:14;
+const armUp=aiming?-95:(p.arm>0?-70:-15);
+ctx.beginPath();ctx.moveTo(x,y-p.h+24);ctx.lineTo(x+dir*30,y-p.h+24+armUp);ctx.stroke();
+ctx.beginPath();ctx.moveTo(x,y-p.h+24);ctx.lineTo(x-dir*14,y-p.h+44);ctx.stroke();
+// cabeza con sombreado
+const hy=y-p.h-16;
+ctx.fillStyle=p.skinD;ctx.beginPath();ctx.arc(x+2,hy+2,16,0,7);ctx.fill();
+ctx.fillStyle=p.skin;ctx.beginPath();ctx.arc(x,hy,16,0,7);ctx.fill();
 ctx.fillStyle='#1a1a1a';
-if(p.curly){
-// rizado Dionell: muchos círculos
-for(let i=-2;i<=2;i++)for(let j=0;j<2;j++){ctx.beginPath();ctx.arc(x+i*8,hy-12-j*7,6,0,7);ctx.fill();}
-}else{
-// bajito Juan Manuel: corte plano
-ctx.fillRect(x-14,hy-24,28,8);
-ctx.fillRect(x-14,hy-24,4,12);ctx.fillRect(x+10,hy-24,4,12);
+if(p.curly){for(let i=-2;i<=2;i++)for(let j=0;j<3;j++){ctx.beginPath();ctx.arc(x+i*8,hy-13-j*6,6.5,0,7);ctx.fill();}
+ctx.beginPath();ctx.arc(x-14,hy-2,5,0,7);ctx.fill();ctx.beginPath();ctx.arc(x+14,hy-2,5,0,7);ctx.fill();}
+else{ctx.fillRect(x-15,hy-26,30,9);ctx.fillRect(x-15,hy-26,4,14);ctx.fillRect(x+11,hy-26,4,14);}
+// ojos/nariz/boca
+ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x+dir*6,hy-1,2.4,0,7);ctx.fill();
+ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x+dir*4,hy+8,4,0.2,Math.PI-0.2);ctx.stroke();
+// nombre + fuerza
+ctx.fillStyle='#fff';ctx.font='800 13px Arial';ctx.fillText(p.name,x,hy-34);
+if(p.charging)drawPower(p,x,y);
+ctx.restore();
 }
-// ojos
-ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x+dir*5,hy,2,0,7);ctx.fill();
-// nombre
-ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText(p.name,x,hy-30);
+function drawPower(p,x,y){
+const w=90,hBar=12,bx=x-45,by=y-p.h-58;
+ctx.fillStyle='rgba(0,0,0,.7)';roundRect(bx-3,by-3,w+6,hBar+6,6);ctx.fill();
+let col=p.charge>62&&p.charge<88?'#22c55e':(p.charge>88?'#ef4444':'#f59e0b');
+ctx.fillStyle='#334155';ctx.fillRect(bx,by,w,hBar);
+ctx.fillStyle=col;ctx.fillRect(bx,by,w*p.charge/100,hBar);
+// zona perfecta
+ctx.fillStyle='rgba(34,197,94,.5)';ctx.fillRect(bx+w*0.62,by, w*0.26,hBar);
+ctx.fillStyle='#fff';ctx.font='800 12px Arial';ctx.textAlign='center';
+ctx.fillText('FUERZA '+Math.round(p.charge)+'%',x,by-6);
+// LÍNEA DE TRAYECTORIA PUNTEADA
+const v=shootVelocity(p);
+let sx=ball.x,sy=ball.y,vx=v.vx,vy=v.vy;
+ctx.save();ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=3;ctx.setLineDash([6,7]);
+ctx.beginPath();ctx.moveTo(sx,sy);
+for(let i=0;i<42;i++){vx*=0.998;vy+=0.45;sx+=vx;sy+=vy;if(i%3===0){ctx.lineTo(sx,sy);ctx.moveTo(sx,sy);}if(sy>FLOOR)break;}
+ctx.stroke();ctx.setLineDash([]);
+// punto ideal
+ctx.beginPath();ctx.arc(sx,sy,5,0,7);ctx.fill();
 ctx.restore();
 }
 function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 function drawBall(){
-ctx.save();
-// balón clásico naranja (sin usar persona real)
-ctx.fillStyle='#e8722a';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,7);ctx.fill();
-ctx.strokeStyle='#5b2c12';ctx.lineWidth=2;
-ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,7);ctx.stroke();
-ctx.beginPath();ctx.moveTo(ball.x-ball.r,ball.y);ctx.lineTo(ball.x+ball.r,ball.y);ctx.stroke();
-ctx.beginPath();ctx.moveTo(ball.x,ball.y-ball.r);ctx.lineTo(ball.x,ball.y+ball.r);ctx.stroke();
-ctx.beginPath();ctx.arc(ball.x-ball.r,ball.y,ball.r*0.9,-0.6,0.6);ctx.stroke();
-ctx.beginPath();ctx.arc(ball.x+ball.r,ball.y,ball.r*0.9,Math.PI-0.6,Math.PI+0.6);ctx.stroke();
+ctx.save();ctx.translate(ball.x,ball.y);ctx.rotate(ball.spin);
+ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(2-ball.x*0,3,ball.r,ball.r*0.4,0,0,7);ctx.fill();
+let g=ctx.createRadialGradient(-5,-5,3,0,0,ball.r+4);g.addColorStop(0,'#fdba74');g.addColorStop(0.5,'#ea580c');g.addColorStop(1,'#7c2d12');
+ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,ball.r,0,7);ctx.fill();
+ctx.strokeStyle='#431407';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,ball.r,0,7);ctx.stroke();
+ctx.beginPath();ctx.moveTo(-ball.r,0);ctx.lineTo(ball.r,0);ctx.stroke();
+ctx.beginPath();ctx.moveTo(0,-ball.r);ctx.lineTo(0,ball.r);ctx.stroke();
+ctx.beginPath();ctx.arc(-ball.r,0,ball.r*0.9,-0.6,0.6);ctx.stroke();
+ctx.beginPath();ctx.arc(ball.r,0,ball.r*0.9,Math.PI-0.6,Math.PI+0.6);ctx.stroke();
 ctx.restore();
 }
 function draw(){
-ctx.clearRect(0,0,W,H);
-// cancha madera
-let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#d99a4e');g.addColorStop(1,'#b97a33');
-ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-// líneas
-ctx.strokeStyle='#fff';ctx.lineWidth=4;
-ctx.strokeRect(20,80,W-40,H-80-60);
-ctx.beginPath();ctx.moveTo(W/2,80);ctx.lineTo(W/2,H-60);ctx.stroke();
-ctx.beginPath();ctx.arc(W/2,H/2,60,0,7);ctx.stroke();
-ctx.fillStyle='rgba(37,99,235,.15)';ctx.fillRect(20,80,120,H-140);ctx.fillRect(W-140,80,120,H-140);
-// aros + tableros
-for(const h of hoops){
-ctx.fillStyle='#e5e7eb';ctx.fillRect(h.x-30,h.rimY-70,60,8);
-ctx.fillStyle='rgba(229,231,235,.9)';const bx=h.x+(h.dir<0?14:-14);
-ctx.fillRect(bx-4,h.rimY-70,8,70);
-ctx.strokeStyle='#b91c1c';ctx.lineWidth=5;ctx.beginPath();
-ctx.moveTo(h.x-18,h.rimY);ctx.lineTo(h.x+18,h.rimY);ctx.stroke();
-ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();
-ctx.moveTo(h.x-16,h.rimY);ctx.lineTo(h.x-12,h.rimY+26);ctx.moveTo(h.x+16,h.rimY);ctx.lineTo(h.x+12,h.rimY+26);ctx.stroke();
-}
+ctx.clearRect(0,0,W,H);drawCourt();
+drawHoop(hoops[0]);drawHoop(hoops[1]);
 drawPlayer(p1);drawPlayer(p2);drawBall();
-if(gameOver){
-ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(0,0,W,H);
-ctx.fillStyle='#fde047';ctx.font='800 52px Arial';ctx.textAlign='center';
+if(gameOver){ctx.fillStyle='rgba(0,0,0,.78)';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#fde047';ctx.font='900 56px Arial';ctx.textAlign='center';
 const win=score1===score2?'EMPATE':(score1>score2?'¡DIONELL GANA! 🏆':'¡JUAN MANUEL GANA! 🏆');
-ctx.fillText(win,W/2,H/2-20);
-ctx.fillStyle='#fff';ctx.font='24px Arial';ctx.fillText(score1+' - '+score2,W/2,H/2+25);
-ctx.font='16px Arial';ctx.fillText('Pulsa ESPACIO o ENTER para reiniciar',W/2,H/2+55);
-}
+ctx.fillText(win,W/2,H/2-10);ctx.fillStyle='#fff';ctx.font='28px Arial';ctx.fillText(score1+' - '+score2,W/2,H/2+35);
+ctx.font='16px Arial';ctx.fillText('Pulsa ESPACIO o ENTER para reiniciar',W/2,H/2+65);}
 }
 setInterval(()=>{update();draw();},1000/60);
 resetPositions();
-showMsg('DIONELL vs JUAN MANUEL · ¡2 min, el que más anote gana!',240);
+showMsg('Nuevo: canasta más grande + mantén tiro para ver fuerza y línea 🎯');
 </script>
 </body>
 </html>
