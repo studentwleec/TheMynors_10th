@@ -1,11 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello World</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dionell vs Juan Manuel - Baloncesto Pro 2P Local</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0f1e;color:#fff;font-family:'Segoe UI',Arial,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:12px}
+h1{font-size:clamp(18px,3vw,28px);letter-spacing:1px;margin-bottom:6px;text-align:center}
+h1 span.d{color:#ffb347}h1 span.j{color:#7dd3fc}
+#wrap{position:relative;width:min(960px,100%)}
+canvas{width:100%;height:auto;background:#e8a34c;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.6);display:block}
+#hud{display:flex;justify-content:space-between;width:min(960px,100%);margin:8px 0;gap:8px;flex-wrap:wrap}
+.card{background:#141d33;border:1px solid #2a3a5f;border-radius:10px;padding:8px 14px;flex:1;min-width:200px;text-align:center}
+.card b{font-size:18px}.score{font-size:32px;font-weight:800}
+#timer{font-size:32px;font-weight:800;color:#fde047}
+.controls{width:min(960px,100%);display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.controls div{flex:1;min-width:260px;background:#141d33;border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.6;border:1px solid #2a3a5f}
+kbd{background:#0a0f1e;border:1px solid #555;border-bottom-width:3px;border-radius:6px;padding:1px 7px;font-family:inherit;font-weight:bold}
+button{margin-top:10px;background:#f59e0b;color:#111;font-weight:800;border:none;border-radius:10px;padding:12px 28px;font-size:16px;cursor:pointer}
+button:hover{background:#fbbf24}
+#msg{text-align:center;margin-top:6px;min-height:22px;color:#fde047;font-weight:bold}
+</style>
 </head>
 <body>
-  <h1>Hello World</h1>
+<h1>🏀 <span class="d">DIONELL</span> vs <span class="j">JUAN MANUEL</span> · BALONCESTO PRO 2P LOCAL</h1>
+<div id="hud">
+<div class="card" style="border-left:6px solid #ffb347"><div>🧑🏾‍🦱 <b>DIONELL</b> — rizado · delgado · tez morena<br><small>Rápido · gran tiro de 3</small></div><div class="score" id="s1">0</div></div>
+<div class="card"><div>⏱️ TIEMPO</div><div id="timer">120</div><div id="periodo" style="font-size:12px;color:#94a3b8">1er TIEMPO · primer a más puntos gana</div></div>
+<div class="card" style="border-right:6px solid #7dd3fc"><div><b>JUAN MANUEL</b> 🧍🏻 — bajito · tez blanca · muy alto<br><small>Tapones y mates imparables</small></div><div class="score" id="s2">0</div></div>
+</div>
+<div id="wrap"><canvas id="game" width="960" height="540"></canvas></div>
+<div id="msg"></div>
+<div class="controls">
+<div>🔵 <b>DIONELL (Jugador 1, izquierda):</b><br><kbd>A</kbd><kbd>D</kbd> moverse · <kbd>W</kbd> saltar · <kbd>F</kbd> lanzar / robar<br><kbd>S</kbd> finta / bajar brazos</div>
+<div>🔴 <b>JUAN MANUEL (Jugador 2, derecha):</b><br><kbd>◀</kbd><kbd>▶</kbd> moverse · <kbd>▲</kbd> saltar · <kbd>Enter</kbd> lanzar / robar<br><kbd>▼</kbd> finta</div>
+</div>
+<button onclick="reiniciar()">↻ REINICIAR PARTIDO</button>
+<script>
+const cv=document.getElementById('game'),ctx=cv.getContext('2d');
+const W=960,H=540,FLOOR=H-60;
+let score1=0,score2=0,timeLeft=120,playing=true,gameOver=false,msgT=0;
+const GRAV=0.6;
+function reiniciar(){score1=0;score2=0;timeLeft=120;gameOver=false;playing=true;
+document.getElementById('s1').textContent='0';document.getElementById('s2').textContent='0';
+resetPositions();showMsg('¡SALTO INICIAL! ¡A JUGAR!',200);}
+function showMsg(t,n=120){document.getElementById('msg').textContent=t;msgT=n;}
+function makePlayer(x,skin,shirt,name,tall,slim,curly,faceLeft){
+return {x,y:FLOOR,vx:0,vy:0,w:slim?32:44,h:tall?130:105,skin,shirt,name,tall,slim,curly,faceLeft,onGround:true,jumpPow:tall?-13.5:-15,speed:slim?4.6:3.8,hasBall:false,arm:0,block:0};}
+let p1=makePlayer(200,'#8D5524','#ff6b35','DIONELL',false,true,true,false);
+let p2=makePlayer(720,'#FFDBB4','#2563eb','JUAN MANUEL',true,false,false,true);
+let ball={x:480,y:200,vx:0,vy:0,r:14,holder:null,lastTouch:null};
+function resetPositions(){p1.x=200;p1.y=FLOOR;p1.vx=p1.vy=0;p2.x=720;p2.y=FLOOR;p2.vx=p2.vy=0;ball.x=480;ball.y=120;ball.vx=0;ball.vy=0;ball.holder=null;}
+const hoops=[{x:70,rimY:200,dir:1},{x:890,rimY:200,dir:-1}];
+const keys={};
+addEventListener('keydown',e=>{
+if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key))e.preventDefault();
+keys[e.key.toLowerCase()]=true;keys[e.key]=true;
+if(gameOver&&(e.key===' '||e.key==='Enter'))reiniciar();});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;keys[e.key]=false;});
+function tryShoot(p,hoop,foe){
+if(ball.holder!==p)return;
+// lanzar hacia el aro más cercano al frente
+const target= (p===p1)?hoops[1]:hoops[0];
+const dx=target.x-p.x, dy=target.rimY-(p.y-p.h-20);
+const dist=Math.abs(dx);
+const pow=Math.min(1,dist/500);
+ball.holder=null;p.hasBall=false;
+ball.vx=dx/45; ball.vy=-11 - pow*3 + dy/120;
+ball.vy=Math.max(-16,Math.min(-8,ball.vy));
+ball.lastTouch=p; p.arm=10; showMsg(p.name+' ¡LANZA!',40);
+}
+function trySteal(p,foe){
+if(ball.holder===foe){
+if(Math.hypot(p.x-foe.x,(p.y-p.h/2)-(foe.y-foe.h/2))<70&&Math.random()<0.35){
+ball.holder=p;p.hasBall=true;foe.hasBall=false;ball.lastTouch=p;showMsg(p.name+' ¡ROBA!',60);}
+}else if(ball.holder===null){
+if(Math.hypot(ball.x-p.x,ball.y-(p.y-p.h/2))<60){ball.holder=p;p.hasBall=true;ball.lastTouch=p;}
+}else if(ball.holder===p){/* nada */}
+else{ // tapón
+p.block=10;}
+}
+function update(){
+if(!playing||gameOver)return;
+timeLeft-=1/60;
+if(timeLeft<=0){timeLeft=0;gameOver=true;showMsg('⏱️ FIN DEL PARTIDO',9999);}
+document.getElementById('timer').textContent=Math.ceil(timeLeft);
+// P1
+let m1=0;if(keys['a'])m1-=1;if(keys['d'])m1+=1;
+p1.vx=m1*p1.speed; p1.faceLeft=m1<0?true:(m1>0?false:p1.faceLeft);
+if(keys['w']&&p1.onGround){p1.vy=p1.jumpPow;p1.onGround=false;}
+// P2
+let m2=0;if(keys['arrowleft'])m2-=1;if(keys['arrowright'])m2+=1;
+p2.vx=m2*p2.speed; p2.faceLeft=m2<0?true:(m2>0?false:p2.faceLeft);
+if(keys['arrowup']&&p2.onGround){p2.vy=p2.jumpPow;p2.onGround=false;}
+for(const p of [p1,p2]){
+p.vy+=GRAV;p.x+=p.vx;p.y+=p.vy;
+if(p.x<30)p.x=30;if(p.x>W-30)p.x=W-30;
+if(p.y>=FLOOR){p.y=FLOOR;p.vy=0;p.onGround=true;}
+if(p.arm>0)p.arm--;if(p.block>0)p.block--;}
+// disparos (flanco)
+if(!p1._f&&keys['f']){tryShoot(p1);trySteal(p1,p2);}p1._f=!!keys['f'];
+if(!p2._e&&(keys['enter'])){tryShoot(p2);trySteal(p2,p1);}p2._e=!!keys['enter'];
+// balón
+if(ball.holder){
+const p=ball.holder;
+ball.x=p.x+(p.faceLeft?-26:26);ball.y=p.y-p.h-6+Math.sin(Date.now()/150)*3;
+ball.vx=ball.vy=0;
+}else{
+ball.vy+=0.45;ball.x+=ball.vx;ball.y+=ball.vy;
+ball.vx*=0.995;
+// suelo
+if(ball.y+ball.r>FLOOR+18){ball.y=FLOOR+18-ball.r;ball.vy*=-0.62;ball.vx*=0.9;if(Math.abs(ball.vy)<1)ball.vy=0;}
+// paredes y tableros
+for(const h of hoops){
+// tablero
+const bx=h.x+(h.dir<0?12:-12);
+if(Math.abs(ball.x-bx)<8&&ball.y>h.rimY-60&&ball.y<h.rimY+10){ball.vx*=-0.7;ball.x+= (ball.x>bx?4:-4);}
+// aro (dos puntos)
+for(const rx of [h.x-16,h.x+16]){
+const ry=h.rimY;
+const dx=ball.x-rx,dy=ball.y-ry,d=Math.hypot(dx,dy);
+if(d<ball.r+5&&d>0){const nx=dx/d,ny=dy/d;ball.x=rx+nx*(ball.r+5);ball.y=ry+ny*(ball.r+5);
+const dot=ball.vx*nx+ball.vy*ny;ball.vx-=1.7*dot*nx;ball.vy-=1.7*dot*ny;ball.vx*=0.92;ball.vy*=0.92;}
+}
+// canasta: pasa hacia abajo entre los puntos
+if(Math.abs(ball.x-h.x)<13&&Math.abs(ball.y-h.rimY)<6&&ball.vy>0){
+encesta(h);
+}
+}
+// recoger
+for(const p of [p1,p2]){
+if(ball.holder===null&&ball.y>p.y-p.h-30&&ball.y<p.y+10&&Math.abs(ball.x-p.x)<32&&Math.abs(ball.vy)<12){
+ball.holder=p;p.hasBall=true;ball.lastTouch=p;break;}
+}
+// jugadores empujan balón suelto
+}
+if(msgT>0){msgT--;if(msgT===0&&!gameOver)document.getElementById('msg').textContent='';}
+}
+function encesta(h){
+const esIzq=(h===hoops[0]);
+const anotador= esIzq? p2 : p1; // encestar en aro izq = punto para p2 (ataca izq?) -> simplificamos: aro derecho es de p1
+// Definimos: p1 ataca derecha, p2 ataca izquierda
+let puntos=2;
+const distLanz=Math.abs(ball.x-(anotador.x));
+if(ball.lastTouch===anotador){
+if(esIzq&&anotador===p2||!esIzq&&anotador===p1){
+score1+= !esIzq?2:0; score2+= esIzq?2:0;
+if(!esIzq){score1+=0;showMsg('¡CANASTA DE DIONELL +2!',120);}else{showMsg('¡CANASTA DE JUAN MANUEL +2!',120);}
+document.getElementById('s1').textContent=score1;
+document.getElementById('s2').textContent=score2;
+}else{
+// canasta en propia -> punto rival
+}
+}
+ball.x=h.x;ball.y=h.rimY+20;ball.vx=(esIzq?2:-2);ball.vy=2;ball.lastTouch=null;
+}
+function drawPlayer(p){
+const x=p.x,y=p.y;
+ctx.save();
+// sombra
+ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(x,FLOOR+20,p.w*0.9,8,0,0,7);ctx.fill();
+// piernas
+ctx.fillStyle='#111';
+const run=Math.sin(Date.now()/100+p.x)* (Math.abs(p.vx)>0.5?6:0);
+ctx.fillRect(x-10,y-34+run*0.3,9,34);ctx.fillRect(x+2,y-34-run*0.3,9,34);
+// torso
+ctx.fillStyle=p.shirt;
+roundRect(x-p.w/2,y-p.h,p.w,p.h-34,10);ctx.fill();
+ctx.fillStyle='rgba(255,255,255,.9)';ctx.font='bold 11px Arial';ctx.textAlign='center';
+ctx.fillText(p===p1?'3':'34',x,y-p.h/2-8);
+// brazos
+ctx.strokeStyle=p.skin;ctx.lineWidth=p.slim?8:11;ctx.lineCap='round';
+const reach=p.block>0?-50:(p.arm>0?-58:-20);
+const dir=p.faceLeft?-1:1;
+ctx.beginPath();ctx.moveTo(x,y-p.h+18);ctx.lineTo(x+dir*22,y-p.h+18-reach);ctx.stroke();
+// cabeza
+const hy=y-p.h-14;
+ctx.fillStyle=p.skin;ctx.beginPath();ctx.arc(x,hy,15,0,7);ctx.fill();
+// pelo
+ctx.fillStyle='#1a1a1a';
+if(p.curly){
+// rizado Dionell: muchos círculos
+for(let i=-2;i<=2;i++)for(let j=0;j<2;j++){ctx.beginPath();ctx.arc(x+i*8,hy-12-j*7,6,0,7);ctx.fill();}
+}else{
+// bajito Juan Manuel: corte plano
+ctx.fillRect(x-14,hy-24,28,8);
+ctx.fillRect(x-14,hy-24,4,12);ctx.fillRect(x+10,hy-24,4,12);
+}
+// ojos
+ctx.fillStyle='#000';ctx.beginPath();ctx.arc(x+dir*5,hy,2,0,7);ctx.fill();
+// nombre
+ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.fillText(p.name,x,hy-30);
+ctx.restore();
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawBall(){
+ctx.save();
+// balón clásico naranja (sin usar persona real)
+ctx.fillStyle='#e8722a';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,7);ctx.fill();
+ctx.strokeStyle='#5b2c12';ctx.lineWidth=2;
+ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,7);ctx.stroke();
+ctx.beginPath();ctx.moveTo(ball.x-ball.r,ball.y);ctx.lineTo(ball.x+ball.r,ball.y);ctx.stroke();
+ctx.beginPath();ctx.moveTo(ball.x,ball.y-ball.r);ctx.lineTo(ball.x,ball.y+ball.r);ctx.stroke();
+ctx.beginPath();ctx.arc(ball.x-ball.r,ball.y,ball.r*0.9,-0.6,0.6);ctx.stroke();
+ctx.beginPath();ctx.arc(ball.x+ball.r,ball.y,ball.r*0.9,Math.PI-0.6,Math.PI+0.6);ctx.stroke();
+ctx.restore();
+}
+function draw(){
+ctx.clearRect(0,0,W,H);
+// cancha madera
+let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#d99a4e');g.addColorStop(1,'#b97a33');
+ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+// líneas
+ctx.strokeStyle='#fff';ctx.lineWidth=4;
+ctx.strokeRect(20,80,W-40,H-80-60);
+ctx.beginPath();ctx.moveTo(W/2,80);ctx.lineTo(W/2,H-60);ctx.stroke();
+ctx.beginPath();ctx.arc(W/2,H/2,60,0,7);ctx.stroke();
+ctx.fillStyle='rgba(37,99,235,.15)';ctx.fillRect(20,80,120,H-140);ctx.fillRect(W-140,80,120,H-140);
+// aros + tableros
+for(const h of hoops){
+ctx.fillStyle='#e5e7eb';ctx.fillRect(h.x-30,h.rimY-70,60,8);
+ctx.fillStyle='rgba(229,231,235,.9)';const bx=h.x+(h.dir<0?14:-14);
+ctx.fillRect(bx-4,h.rimY-70,8,70);
+ctx.strokeStyle='#b91c1c';ctx.lineWidth=5;ctx.beginPath();
+ctx.moveTo(h.x-18,h.rimY);ctx.lineTo(h.x+18,h.rimY);ctx.stroke();
+ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.beginPath();
+ctx.moveTo(h.x-16,h.rimY);ctx.lineTo(h.x-12,h.rimY+26);ctx.moveTo(h.x+16,h.rimY);ctx.lineTo(h.x+12,h.rimY+26);ctx.stroke();
+}
+drawPlayer(p1);drawPlayer(p2);drawBall();
+if(gameOver){
+ctx.fillStyle='rgba(0,0,0,.75)';ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#fde047';ctx.font='800 52px Arial';ctx.textAlign='center';
+const win=score1===score2?'EMPATE':(score1>score2?'¡DIONELL GANA! 🏆':'¡JUAN MANUEL GANA! 🏆');
+ctx.fillText(win,W/2,H/2-20);
+ctx.fillStyle='#fff';ctx.font='24px Arial';ctx.fillText(score1+' - '+score2,W/2,H/2+25);
+ctx.font='16px Arial';ctx.fillText('Pulsa ESPACIO o ENTER para reiniciar',W/2,H/2+55);
+}
+}
+setInterval(()=>{update();draw();},1000/60);
+resetPositions();
+showMsg('DIONELL vs JUAN MANUEL · ¡2 min, el que más anote gana!',240);
+</script>
 </body>
 </html>
